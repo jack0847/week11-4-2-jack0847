@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품관리 AJAX 실습</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+  <h2>상품관리</h2>
+
+  <div id="div_list" style="margin-bottom:10px; border:1px solid #ccc; padding:10px;">목록 출력 영역</div>
+  <button id="btn_list">목록 보기</button>
+
+  <hr>
+  id : <input type="text" id="input_id" />
+  품명 : <input type="text" id="input_name" />
+  가격 : <input type="number" id="input_price" />
+  수량 : <input type="number" id="input_qty" />
+  상태 : <input type="text" id="input_state" placeholder="정상판매중" />
+  <br><br>
+  <button id="btn_add">추가하기</button>
+  <button id="btn_update">수정하기</button>
+  <button id="btn_delete">삭제하기</button>
+
+  <script>
+    $(function(){
+
+      $("#btn_list").click(function(){
+        alert("상품 목록을 불러옵니다.");
+
+        const xhr = new XMLHttpRequest();
+       xhr.open("GET","https://6915407184e8bd126af93b79.mockapi.io/endpoint/products");
+        xhr.setRequestHeader("content-type","application/json");
+        xhr.send();
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const res = JSON.parse(xhr.response);
+            $("#div_list").html("");
+            res.forEach(function(each){
+              $("#div_list").append(
+                `<div>${each.id} : ${each["name"]} | ${each["price"]}원 | 수량:${each["amount"]} | 상태:${each["state"]}</div>`
+              );
+            });
+          } else {
+            console.log(xhr.status, xhr.statusText);
+          }
+        }
+      });
+
+      $("#btn_add").click(function(){
+        alert("상품을 추가합니다.");
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST","https://6915407184e8bd126af93b79.mockapi.io/endpoint/products");
+        xhr.setRequestHeader("content-type","application/json");
+        let data = { 
+            id: $("#input_id").val(),
+          "name": $("#input_name").val(), 
+          "price": Number($("#input_price").val()), 
+          "amount": Number($("#input_qty").val()),
+          "state": $("#input_state").val()
+        };
+        xhr.send(JSON.stringify(data));
+        xhr.onload = () => {
+          if (xhr.status === 201) {
+            alert("상품이 추가되었습니다.");
+            $("#btn_list").click();
+          } else {
+            console.log(xhr.status, xhr.statusText);
+          }
+        }
+      });
+
+      $("#btn_update").click(function(){
+        alert("상품 정보를 수정합니다.");
+
+        const id = $("#input_id").val();
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT","https://6915407184e8bd126af93b79.mockapi.io/endpoint/products/" + id);
+        xhr.setRequestHeader("content-type","application/json");
+        let data = { 
+          "name": $("#input_name").val(), 
+          "price": Number($("#input_price").val()), 
+          "amount": Number($("#input_qty").val()),
+          "state": $("#input_state").val()
+        };
+        xhr.send(JSON.stringify(data));
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            alert("상품이 수정되었습니다.");
+            $("#btn_list").click();
+          } else {
+            console.log(xhr.status, xhr.statusText);
+          }
+        }
+      });
+
+      $("#btn_delete").click(function(){
+        alert("상품을 삭제합니다.");
+
+        const id = $("#input_id").val();
+        const xhr = new XMLHttpRequest();
+        xhr.open("DELETE","https://6915407184e8bd126af93b79.mockapi.io/endpoint/products/" + id);
+        xhr.setRequestHeader("content-type","application/json");
+        xhr.send();
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            alert("상품이 삭제되었습니다.");
+            $("#btn_list").click();
+          } else {
+            console.log(xhr.status, xhr.statusText);
+          }
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
